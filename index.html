@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentes de IA y Automatización Jurídica - Dra. María Elisa Farías</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --border-card: rgba(255, 255, 255, 0.12);
+      --accent-cyan: #00f2fe;
+      --accent-blue: #4facfe;
+      --accent-purple: #7f00ff;
+      --accent-gold: #ffb703;
+      --accent-emerald: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+      --glow-cyan: rgba(0, 242, 254, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Background Ambient Lights */
+    .bg-glow-1 {
+      position: absolute;
+      top: -15%;
+      left: -15%;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(79, 172, 254, 0.18) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: -15%;
+      right: -15%;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(127, 0, 255, 0.18) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grid pattern overlay */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Bar Header */
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 10, 18, 0.7);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      color: var(--accent-cyan);
+    }
+
+    .brand-badge span {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-shield {
+      background: linear-gradient(135deg, rgba(255, 183, 3, 0.15), rgba(255, 0, 80, 0.15));
+      border: 1px solid rgba(255, 183, 3, 0.4);
+      color: #ffb703;
+      padding: 0.45rem 0.95rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.25 ease;
+    }
+
+    .btn-shield:hover {
+      background: linear-gradient(135deg, rgba(255, 183, 3, 0.25), rgba(255, 0, 80, 0.25));
+      border-color: #ffb703;
+      box-shadow: 0 0 15px rgba(255, 183, 3, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .topic-tag {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      color: var(--text-muted);
+    }
+
+    /* Slide Container */
+    .slides-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      width: 88%;
+      max-width: 1150px;
+      opacity: 0;
+      transform: translateY(30px) scale(0.98);
+      pointer-events: none;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Typography */
+    .slide-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .slide-number::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0, 242, 254, 0.4), transparent);
+    }
+
+    h1.slide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.7rem;
+      font-weight: 800;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2.slide-subtitle {
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: -0.7rem;
+    }
+
+    /* Cover Slide */
+    .cover-slide {
+      text-align: left;
+    }
+
+    .cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(79, 172, 254, 0.12));
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      color: var(--accent-cyan);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      width: fit-content;
+      opacity: 0;
+      transform: translateY(-15px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+    }
+
+    .slide.active .cover-badge {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cover-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-cyan) 80%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Typewriter & Slide-in Animation */
+    .typewriter-cursor {
+      display: inline-block;
+      width: 4px;
+      height: 0.9em;
+      background: var(--accent-cyan);
+      margin-left: 4px;
+      vertical-align: middle;
+      box-shadow: 0 0 10px var(--accent-cyan);
+      animation: blinkCursor 0.8s infinite;
+    }
+
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .banner-card-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      border-radius: 18px;
+      padding: 0.6rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(0, 242, 254, 0.2);
+      opacity: 0;
+      transform: translateX(120px) scale(0.9);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+    }
+
+    .slide.active .banner-card-box {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    .cover-author {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .author-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 0 20px var(--glow-cyan);
+    }
+
+    .author-info h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      color: #fff;
+    }
+
+    .author-info p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    /* Interactive Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.4rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--glass-shadow);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(0, 242, 254, 0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 242, 254, 0.15);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-click-hint {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.1);
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      opacity: 0.8;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover .card-click-hint {
+      opacity: 1;
+      background: rgba(0, 242, 254, 0.2);
+      border-color: var(--accent-cyan);
+    }
+
+    .card-icon {
+      font-size: 1.9rem;
+      margin-bottom: 0.8rem;
+      display: inline-block;
+    }
+
+    .card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card p {
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Highlight Box */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(79, 172, 254, 0.12), rgba(127, 0, 255, 0.12));
+      border: 1px solid rgba(79, 172, 254, 0.35);
+      border-radius: 16px;
+      padding: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .highlight-box:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .highlight-box.warning {
+      background: linear-gradient(135deg, rgba(255, 183, 3, 0.12), rgba(255, 0, 80, 0.12));
+      border-color: rgba(255, 183, 3, 0.4);
+    }
+
+    .highlight-box.warning:hover {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 25px rgba(255, 183, 3, 0.25);
+    }
+
+    .highlight-icon {
+      font-size: 2.2rem;
+      flex-shrink: 0;
+    }
+
+    .highlight-text {
+      flex: 1;
+    }
+
+    .highlight-text h4 {
+      font-family: 'Outfit', sans-serif;
+      color: #fff;
+      font-size: 1.15rem;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .highlight-text p {
+      color: #cbd5e1;
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    /* Interactive Flow Diagram */
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin: 0.5rem 0;
+    }
+
+    .flow-step {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 1.2rem;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .flow-step:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 242, 254, 0.2);
+    }
+
+    .flow-step.active-step {
+      border-color: var(--accent-cyan);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(0, 242, 254, 0.08));
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+    }
+
+    .flow-step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      margin-bottom: 0.35rem;
+    }
+
+    .flow-step h4 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .flow-step p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .flow-arrow {
+      color: var(--accent-cyan);
+      font-size: 1.4rem;
+      font-weight: bold;
+      opacity: 0.7;
+    }
+
+    /* Blockquote */
+    blockquote {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      font-style: italic;
+      line-height: 1.45;
+      color: #fff;
+      border-left: 4px solid var(--accent-cyan);
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 1.2rem 1.5rem;
+      border-radius: 0 12px 12px 0;
+    }
+
+    /* Floating Modal / Card Details Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 15, 0.82);
+      backdrop-filter: blur(18px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      border-radius: 20px;
+      max-width: 840px;
+      width: 92%;
+      max-height: 90vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 1.8rem 2.2rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 242, 254, 0.2);
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .modal-card::-webkit-scrollbar {
+      display: none;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 0, 80, 0.2);
+      border-color: #ff0050;
+      color: #ff0050;
+    }
+
+    .modal-tag {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: var(--accent-cyan);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+      line-height: 1.25;
+    }
+
+    .modal-body {
+      color: #cbd5e1;
+      font-size: 1rem;
+      line-height: 1.65;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Modal Directional Animations */
+    .anim-slide-right {
+      opacity: 0;
+      transform: translateX(80px);
+      transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+    }
+
+    .anim-slide-left {
+      opacity: 0;
+      transform: translateX(-80px);
+      transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+
+    .anim-slide-up {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+    }
+
+    .anim-pop-center {
+      opacity: 0;
+      transform: scale(0.85);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
+    }
+
+    .modal-overlay.active .anim-slide-right,
+    .modal-overlay.active .anim-slide-left,
+    .modal-overlay.active .anim-slide-up {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+
+    .modal-overlay.active .anim-pop-center {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .modal-body strong {
+      color: #fff;
+    }
+
+    .modal-body ul, .modal-body ol {
+      padding-left: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .modal-body .badge-law {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(127, 0, 255, 0.2);
+      border: 1px solid rgba(127, 0, 255, 0.4);
+      color: #d8b4fe;
+      font-size: 0.82rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .modal-quote {
+      border-left: 3px solid var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.05);
+      padding: 0.9rem 1.2rem;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #e2e8f0;
+    }
+
+    /* Bottom Footer Bar */
+    footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 10, 18, 0.7);
+      backdrop-filter: blur(16px);
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 16.66%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-nav {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      color: #fff;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent-cyan);
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-badge">
+      ⚡ <span>EDI LATAM 2026</span>
+    </div>
+    <div class="header-actions">
+      <div class="topic-tag">Jornadas Preparatorias Congreso Derecho Digital</div>
+    </div>
+  </header>
+
+  <!-- Slides Wrapper -->
+  <div class="slides-wrapper">
+
+    <!-- SLIDE 1: Portada -->
+    <div class="slide active cover-slide" id="slide-1">
+      <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+          <div class="cover-badge">⚡ Especialidad Legal-Tech & Gobernanza de IA</div>
+          <h1 class="cover-title" style="font-size: 3.1rem; margin-bottom: 0; min-height: 2.2em;">
+            <span id="typewriter-title"></span><span class="typewriter-cursor" id="typewriter-cursor"></span>
+          </h1>
+          <h2 class="slide-subtitle" style="margin-top: 0;">Soberanía de Datos, Límites Éticos y Compliance en la Práctica Profesional</h2>
+          
+          <div class="cover-author" style="margin-top: 0.8rem;">
+            <div class="author-avatar">⚖️</div>
+            <div class="author-info">
+              <h3>Dra. María Elisa Farías</h3>
+              <p>Abogada (UNPSJB) | Especialista en IA, Automatización e Infraestructura Legal-Tech</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <div class="banner-card-box">
+            <img src="banner_jornadas.jpeg" alt="Jornadas Preparatorias de Derecho Digital" style="width: 100%; max-height: 380px; object-fit: contain; border-radius: 12px; display: block;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: El Diagnóstico - Shadow AI -->
+    <div class="slide" id="slide-2">
+      <div class="slide-number">BLOQUE 01 — EL DIAGNÓSTICO</div>
+      <h1 class="slide-title">La Trampa del "Shadow AI" en el Despacho</h1>
+      <h2 class="slide-subtitle">Diferencia entre uso casual de chatbots y automatización agéntica real</h2>
+
+      <div class="grid-2">
+        <div class="card" onclick="openModal('shadow-ai')">
+          <div class="card-icon">⚠️</div>
+          <h3>La Ilusión del Chatbot Pasivo</h3>
+          <p>Copiar y pegar escritos, contratos o datos de clientes en interfaces web públicas de ChatGPT/Claude sin verificar las políticas de privacidad o el uso para entrenamiento.</p>
+        </div>
+
+        <div class="card" onclick="openModal('agentic-ai')">
+          <div class="card-icon">⚙️</div>
+          <h3>Automatización Agéntica Real</h3>
+          <p>Sistemas informáticos estructurados que ejecutan flujos de trabajo de múltiples pasos, integran APIs y toman decisiones bajo reglas de negocio sin intervención en cada clic.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box warning" onclick="openModal('operativo-risk')">
+        <div class="highlight-icon">🚨</div>
+        <div class="highlight-text">
+          <h4>El Riesgo Operativo</h4>
+          <p>El verdadero peligro no es ser reemplazado por la IA, sino incurrir en fugas masivas de información confidencial y quiebre del secreto profesional sin advertirlo.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Dilema Legal y Normativo -->
+    <div class="slide" id="slide-3">
+      <div class="slide-number">BLOQUE 02 — MARCO LEGAL & ÉTICO</div>
+      <h1 class="slide-title">Secreto Profesional vs. Términos de Servicio</h1>
+      <h2 class="slide-subtitle">Cumplimiento de la Ley 25.326, RGPD, EU AI Act y Privacy by Design</h2>
+
+      <div class="grid-3">
+        <div class="card" onclick="openModal('secreto-tos')">
+          <div class="card-icon">📜</div>
+          <h3>Secreto Profesional</h3>
+          <p>Vulneraciones directas a los ToS comerciales de Big Tech y pérdida de confidencialidad en chats públicos.</p>
+        </div>
+
+        <div class="card" onclick="openModal('ley-25326')">
+          <div class="card-icon">🌐</div>
+          <h3>Ley 25.326 & Adecuación</h3>
+          <p>Transferencia internacional de datos personales hacia servidores sin garantías normativas o consentimiento.</p>
+        </div>
+
+        <div class="card" onclick="openModal('privacy-design')">
+          <div class="card-icon">🛡️</div>
+          <h3>Privacy by Design & EU AI Act</h3>
+          <p>Sistemas de IA en la Justicia catalogados como <strong>Alto Riesgo</strong> exigiendo Human-in-the-Loop obligatorio.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box" onclick="openModal('principio-rector')">
+        <div class="highlight-icon">💡</div>
+        <div class="highlight-text">
+          <h4>Principio Rector Legal-Tech</h4>
+          <p>"No podés innovar a costa de vulnerar la protección de datos personales de tus clientes. La innovación requiere arquitectura previa."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Arquitectura de la Solución -->
+    <div class="slide" id="slide-4">
+      <div class="slide-number">BLOQUE 03 — LA ARQUITECTURA SEGURA</div>
+      <h1 class="slide-title">Soberanía de Datos: La Solución Técnica</h1>
+      <h2 class="slide-subtitle">Cómo automatizar sin ceder confidencialidad ni datos a terceros</h2>
+
+      <div class="flow-diagram">
+        <div class="flow-step" onclick="openModal('flow-step-1')">
+          <div class="flow-step-num">PASO 01</div>
+          <h4>Entrada de Datos</h4>
+          <p>Cédulas / Contratos / Expedientes</p>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step active-step" onclick="openModal('flow-step-2')">
+          <div class="flow-step-num">PASO 02</div>
+          <h4>Filtro Anonimizador</h4>
+          <p>Sanitización Client-Side & Hash Reversible</p>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step active-step" onclick="openModal('flow-step-3')">
+          <div class="flow-step-num">PASO 03</div>
+          <h4>Motor Agéntico Seguro</h4>
+          <p>APIs Zero Retention / Local LLM</p>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step" onclick="openModal('flow-step-4')">
+          <div class="flow-step-num">PASO 04</div>
+          <h4>Resultado Auditado</h4>
+          <p>Validación Human-in-the-Loop</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <div class="card" style="border-color: var(--accent-cyan); padding: 1.4rem; text-align: left; display: flex; align-items: center; gap: 1.2rem; cursor: pointer;" onclick="openModal('api-zdr')">
+          <div class="card-icon" style="font-size: 2.2rem; flex-shrink: 0;">🔒</div>
+          <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.35rem; color: #fff;">APIs Enterprise & Cláusulas Zero Data Retention (ZDR)</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+              Procesamiento efímero en memoria volátil bajo contrato SLA, con prohibición contractual absoluta de retención de datos o reentrenamiento de modelos Big Tech.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Casos de Uso Reales -->
+    <div class="slide" id="slide-5">
+      <div class="slide-number">BLOQUE 04 — APLICACIÓN PRÁCTICA</div>
+      <h1 class="slide-title">Flujos Agénticos en la Práctica Profesional</h1>
+      <h2 class="slide-subtitle">Casos de uso auditables con ROI inmediato en despachos u organismos</h2>
+
+      <div class="grid-3">
+        <div class="card" onclick="openModal('caso-cedulas')">
+          <div class="card-icon">📩</div>
+          <h3>Triangulación de Cédulas</h3>
+          <p>Extracción PDF, sanitización, clasificación de providencias y cálculo automatizado de plazos procesales.</p>
+        </div>
+
+        <div class="card" onclick="openModal('caso-contratos')">
+          <div class="card-icon">📑</div>
+          <h3>Auditoría de Contratos</h3>
+          <p>Checklist normativo automatizado que detecta cláusulas abusivas o de riesgo previa firma humana.</p>
+        </div>
+
+        <div class="card" onclick="openModal('caso-rag')">
+          <div class="card-icon">🤖</div>
+          <h3>Asistentes RAG Locales</h3>
+          <p>Búsqueda semántica sobre la biblioteca digital y antecedentes probados del propio despacho sin alucinación.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box" onclick="openModal('director-orquesta')">
+        <div class="highlight-icon">🎯</div>
+        <div class="highlight-text">
+          <h4>El Nuevo Rol: Director de Orquesta</h4>
+          <p>El abogado deja el trabajo artesanal repetitivo para asumir la supervisión estratégica e inspección de calidad (Human-in-the-Loop).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Conclusión & Preguntas -->
+    <div class="slide" id="slide-6">
+      <div class="slide-number">BLOQUE 05 — CONCLUSIÓN & DEBATE</div>
+      <h1 class="slide-title">Gobernar la IA para Transformar el Derecho</h1>
+      
+      <blockquote>
+        "El futuro del Derecho no pertenece a quienes le tienen miedo a la IA, ni a quienes la usan a ciegas. Pertenece a quienes saben gobernarla con arquitectura y responsabilidad."
+      </blockquote>
+
+      <div class="grid-2" style="margin-top: 1rem;">
+        <div class="card" onclick="openModal('conclusion-clave')">
+          <div class="card-icon">📌</div>
+          <h3>3 Ideas Rectoras de Cierre</h3>
+          <p>1. La tecnología no es neutra.<br>2. La soberanía de datos es la base del secreto profesional.<br>3. Coraje técnico y rigurosidad jurídica.</p>
+        </div>
+
+        <div class="card" style="border-color: var(--accent-cyan);" onclick="openModal('shield-faq')">
+          <div class="card-icon">💬</div>
+          <h3>¡Muchas Gracias! (Debate)</h3>
+          <p><strong>Abog. María Elisa Farías</strong><br><span style="color: var(--accent-cyan); font-weight: 600;">Espacio para preguntas y debate ➔</span></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Footer -->
+  <footer>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+    
+    <div class="slide-counter">
+      <span id="current-slide">1</span> / <span id="total-slides">6</span>
+    </div>
+
+    <div class="controls">
+      <button class="btn-nav" id="btn-prev">⬅️ Anterior</button>
+      <button class="btn-nav" id="btn-next">Siguiente ➡️</button>
+    </div>
+  </footer>
+
+  <!-- FLOATING MODAL OVERLAY -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content">
+        <!-- Dynamic Content Injected Here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Slide Navigation Logic
+    let currentSlide = 1;
+    const totalSlides = 6;
+    const currentSlideEl = document.getElementById('current-slide');
+    const progressBar = document.getElementById('progress');
+
+    // Typewriter logic
+    const titleText = "Agentes de IA y Automatización Jurídica";
+    let typewriterTimer = null;
+
+    function startTypewriter() {
+      const el = document.getElementById('typewriter-title');
+      const cursor = document.getElementById('typewriter-cursor');
+      if (!el) return;
+      
+      el.textContent = '';
+      if (cursor) cursor.style.display = 'inline-block';
+      if (typewriterTimer) clearInterval(typewriterTimer);
+
+      let i = 0;
+      typewriterTimer = setInterval(() => {
+        if (i < titleText.length) {
+          el.textContent += titleText.charAt(i);
+          i++;
+        } else {
+          clearInterval(typewriterTimer);
+          setTimeout(() => {
+            if (cursor) cursor.style.display = 'none';
+          }, 2500);
+        }
+      }, 40);
+    }
+
+    function updateSlides() {
+      document.querySelectorAll('.slide').forEach((slide, index) => {
+        if (index + 1 === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+      currentSlideEl.textContent = currentSlide;
+      progressBar.style.width = `${(currentSlide / totalSlides) * 100}%`;
+
+      if (currentSlide === 1) {
+        startTypewriter();
+      }
+    }
+
+    // Trigger typewriter on load
+    window.addEventListener('DOMContentLoaded', () => {
+      startTypewriter();
+    });
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlides();
+      }
+    });
+
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlides();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      } else if (e.key === 'ArrowRight' || e.key === ' ') {
+        if (!document.getElementById('modal-overlay').classList.contains('active')) {
+          if (currentSlide < totalSlides) {
+            currentSlide++;
+            updateSlides();
+          }
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (!document.getElementById('modal-overlay').classList.contains('active')) {
+          if (currentSlide > 1) {
+            currentSlide--;
+            updateSlides();
+          }
+        }
+      }
+    });
+
+    // Deep Concept Data Store from Jornadas Material
+    const conceptDetails = {
+      'shadow-ai': {
+        tag: 'DIAGNÓSTICO TÉCNICO & CIBERSEGURIDAD',
+        title: '⚠️ La Ilusión del Chatbot Pasivo & "Shadow AI"',
+        content: `
+          <p style="font-size: 0.95rem; margin-bottom: 0.8rem;">
+            <strong>¿Qué es el "Shadow AI"?</strong> Es el uso informal, descontrolado e invisible de herramientas de IA públicas dentro de las organizaciones o despachos jurídicos.
+          </p>
+          
+          <div style="display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+            <div style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(0, 242, 254, 0.35); box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+              <video src="shadow_ai_demo.mp4" autoplay loop muted playsinline style="width: 100%; max-height: 165px; object-fit: cover; display: block; border-radius: 12px;"></video>
+            </div>
+
+            <div class="modal-quote" style="margin: 0; padding: 0.8rem 1rem; font-size: 0.88rem; line-height: 1.4;">
+              "Copiar y pegar un escrito judicial con nombres reales, DNI, datos de salud o secretos comerciales en la casilla de un chat público convierte esos datos en alimento de entrenamiento global."
+            </div>
+          </div>
+
+          <p style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+            Los 3 grandes problemas de la IA Pasiva Comercial:
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              ⚡ Reentrenamiento de Modelos
+            </div>
+            <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              ⚖️ Fuga de Estrategia Judicial
+            </div>
+            <div style="grid-column: 1 / -1; justify-self: center; width: 85%; background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🔐 Quiebre de la cadena de custodia de la información
+            </div>
+          </div>
+        `
+      },
+      'agentic-ai': {
+        tag: 'ARQUITECTURA & AUTOMATIZACIÓN',
+        title: '⚙️ ¿Qué es la Automatización Agéntica Real?',
+        content: `
+          <p style="font-size: 0.95rem; margin-bottom: 0.8rem;">
+            Frente a la IA pasiva (que solo responde preguntas en una ventana de chat), la <strong>IA Agéntica</strong> representa un salto cualitativo de arquitectura:
+          </p>
+          
+          <div style="display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+            <div style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(0, 242, 254, 0.35); box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+              <video src="agentic_ai_demo.mp4" autoplay loop muted playsinline style="width: 100%; max-height: 165px; object-fit: cover; display: block; border-radius: 12px;"></video>
+            </div>
+
+            <div class="modal-quote" style="margin: 0; padding: 0.8rem 1rem; font-size: 0.88rem; line-height: 1.4;">
+              "El abogado pasa de ser un tiempista tipeador de prompts a un Diseñador y Supervisor de Flujos Agénticos."
+            </div>
+          </div>
+
+          <p style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+            Los 3 pilares de la Automatización Agéntica:
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              ⚡ Sistemas Estructurados Autónomos
+            </div>
+            <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🌐 Conexión con APIs e Infraestructura
+            </div>
+            <div style="grid-column: 1 / -1; justify-self: center; width: 85%; background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🔒 Ejecución Segura en Segundo Plano (VPS)
+            </div>
+          </div>
+        `
+      },
+      'operativo-risk': {
+        tag: 'RESPONSABILIDAD PROFESIONAL',
+        title: '🚨 El Verdadero Riesgo Operativo y la Alucinación',
+        content: `
+          <p style="font-size: 0.95rem; margin-bottom: 0.8rem;">
+            El riesgo no es que la máquina "reemplace" al abogado. El riesgo legal y ético radica en:
+          </p>
+          
+          <div style="display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+            <div style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(0, 242, 254, 0.35); box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+              <video src="operativo_risk_demo.mp4" autoplay loop muted playsinline style="width: 100%; max-height: 165px; object-fit: cover; display: block; border-radius: 12px;"></video>
+            </div>
+
+            <div class="modal-quote" style="margin: 0; padding: 0.8rem 1rem; font-size: 0.88rem; line-height: 1.4;">
+              "Las LLM no poseen conciencia ni razonamiento lógico; funcionan por cálculo probabilístico de tokens. Presentar jurisprudencia inexistente constituye negligencia profesional."
+            </div>
+          </div>
+
+          <p style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+            Los 3 pilares del Riesgo Operativo:
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🚨 Responsabilidad Ética por Alucinación
+            </div>
+            <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              📜 Violación del Secreto Profesional
+            </div>
+            <div style="grid-column: 1 / -1; justify-self: center; width: 85%; background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🏛️ Sanciones Administrativas (Ley 25.326)
+            </div>
+          </div>
+        `
+      },
+      'secreto-tos': {
+        tag: 'MARCO NORMATIVO',
+        title: '📜 Secreto Profesional vs. Términos de Servicio (ToS)',
+        content: `
+          <div class="anim-slide-right">
+            <p style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.9rem;">
+              El secreto profesional procesal y constitucional choca directamente con la "letra chica" de las plataformas web gratuitas:
+            </p>
+          </div>
+          
+          <div class="anim-pop-center modal-quote" style="margin-bottom: 1rem; padding: 0.9rem 1.1rem; font-size: 0.92rem; line-height: 1.45; border-left: 4px solid var(--accent-cyan); background: rgba(0, 242, 254, 0.06); box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);">
+            "Al hacer clic en 'Acepto los términos de servicio' de un chatbot público, el profesional suele estar otorgando una licencia de uso de datos a la Big Tech que anula la confidencialidad con su cliente."
+          </div>
+
+          <div class="anim-slide-up" style="background: rgba(127, 0, 255, 0.08); border: 1px solid rgba(127, 0, 255, 0.35); border-radius: 12px; padding: 0.85rem 1.1rem; margin-top: 0.5rem;">
+            <p style="font-size: 0.92rem; color: #e2e8f0; line-height: 1.45; margin: 0;">
+              <strong style="color: #d8b4fe;">La Exigencia Contractual:</strong> Se requiere un acuerdo formal de <em>Encargado de Tratamiento</em> (Art. 28 RGPD / Ley 25.326) que prohíba expresamente la retención de datos.
+            </p>
+          </div>
+        `
+      },
+      'ley-25326': {
+        tag: 'DERECHO INTERNACIONAL & PROTECCIÓN DE DATOS',
+        title: '🌐 Ley 25.326 & Conexión Argentina - Unión Europea',
+        content: `
+          <div class="anim-slide-right">
+            <p style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.9rem;">
+              <strong>Transferencia Internacional de Datos:</strong> Nuestra Ley 25.326 impone restricciones estrictas al envío de datos personales a países sin legislación adecuada.
+            </p>
+          </div>
+          
+          <div class="anim-slide-left" style="background: rgba(127, 0, 255, 0.08); border: 1px solid rgba(127, 0, 255, 0.35); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.9rem;">
+            <div style="font-size: 1.4rem; flex-shrink: 0;">🇪🇺 ⇄ 🇦🇷</div>
+            <div style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.4;">
+              <strong style="color: #d8b4fe;">Decisión de Adecuación UE:</strong> La Comisión Europea reconoce a Argentina con nivel adecuado. Las transferencias hacia servidores en la UE (RGPD) tienen continuidad jurídica legítima.
+            </div>
+          </div>
+
+          <div class="anim-slide-up" style="background: rgba(255, 183, 3, 0.08); border-left: 4px solid var(--accent-gold); border-radius: 0 12px 12px 0; padding: 0.9rem 1.1rem; margin-top: 0.5rem;">
+            <p style="font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.45; margin: 0;">
+              ⚠️ Si los datos procesados por la IA en la nube no están previa y adecuadamente anonimizados antes del envío de red, se incurre en una transferencia no autorizada.
+            </p>
+          </div>
+        `
+      },
+      'privacy-design': {
+        tag: 'EU AI ACT & PRIVACIDAD DESDE EL DISEÑO',
+        title: '🛡️ Privacy by Design & Reglamento Europeo de IA (EU AI Act)',
+        content: `
+          <p style="font-size: 0.92rem; margin-bottom: 0.6rem;">
+            <strong>El Reglamento Europeo de IA (EU AI Act - 2026):</strong>
+          </p>
+          
+          <div class="modal-quote" style="margin-bottom: 0.9rem; padding: 0.8rem 1rem; font-size: 0.88rem; line-height: 1.4;">
+            "Clasifica expresamente a los sistemas de IA utilizados en la Administración de Justicia, asistencia judicial y resolución alternativa de conflictos como de <strong>ALTO RIESGO (High-Risk AI Systems)</strong>."
+          </div>
+
+          <p style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+            Exigencias legales innegociables para Alto Riesgo:
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              👥 Supervisión Humana (Human-in-the-Loop)
+            </div>
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              📋 Evaluación de Impacto (EIPD / DPIA)
+            </div>
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🔍 Trazabilidad e Inalterabilidad
+            </div>
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🏷️ Transparencia y Marcas de Agua
+            </div>
+          </div>
+        `
+      },
+      'principio-rector': {
+        tag: 'CUMPLIMIENTO LEGAL-TECH',
+        title: '💡 El Principio Rector del Compliance Digital',
+        content: `
+          <div class="anim-pop-center modal-quote" style="margin-bottom: 0.9rem; padding: 0.8rem 1rem; font-size: 0.92rem; line-height: 1.45; border-left: 4px solid var(--accent-cyan); background: rgba(0, 242, 254, 0.06); box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);">
+            "La tecnología no suspende las garantías constitucionales ni la ética procesal."
+          </div>
+
+          <p style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.6rem;">
+            Para automatizar la práctica profesional se exigen 3 pilares de compliance:
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              ⚖️ Legalidad en la Captura
+            </div>
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🛡️ Anonimización Reversible en Origen
+            </div>
+            <div class="anim-slide-up" style="grid-column: 1 / -1; justify-self: center; width: 85%; background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.86rem; text-align: center; color: #38bdf8; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);">
+              🖥️ Control Auditado de la Infraestructura
+            </div>
+          </div>
+        `
+      },
+      'flow-step-1': {
+        tag: 'PASO 01 DEL FLUJO SEGURIDAD',
+        title: '📥 Paso 1: Entrada de Datos en el Cliente',
+        content: `
+          <p>Recepción de documentos digitales en el entorno local del despacho o juzgado (cédulas procesales, adjuntos de correo, contratos en PDF, expedientes escaneados).</p>
+          <p>En esta etapa el documento contiene todos los datos personales sensibles (PII): nombres, DNI, CUIL, domicilios y montos en litigio.</p>
+        `
+      },
+      'flow-step-2': {
+        tag: 'PASO 02 DEL FLUJO SEGURIDAD',
+        title: '🔍 Paso 2: Filtro Anonimizador Client-Side & Hash Reversible',
+        content: `
+          <p><strong>El núcleo de la Privacidad desde el Diseño:</strong></p>
+          <p>Antes de que cualquier texto salga a la red, un script en la máquina local o servidor nacional ejecuta una <strong>Seudonimización Reversible</strong>:</p>
+          <ul>
+            <li>Reemplaza nombres por tokens: <code style="background:rgba(0,242,254,0.15); padding:2px 6px; border-radius:4px; font-family:monospace; color:#00f2fe;">[ACTOR_1]</code>, <code style="background:rgba(0,242,254,0.15); padding:2px 6px; border-radius:4px; font-family:monospace; color:#00f2fe;">[DEMANDADO_1]</code>, <code style="background:rgba(0,242,254,0.15); padding:2px 6px; border-radius:4px; font-family:monospace; color:#00f2fe;">[DNI_1]</code>.</li>
+            <li>Almacena la tabla de equivalencias (diccionario de tokens) de forma cifrada en la memoria volátil de la máquina local.</li>
+            <li>Así, a la Inteligencia Artificial solo viaja la lógica jurídica desprovista de datos personales identificables.</li>
+          </ul>
+        `
+      },
+      'flow-step-3': {
+        tag: 'PASO 03 DEL FLUJO SEGURIDAD',
+        title: '🖥️ Paso 3: Procesamiento en Servidor VPS Self-Hosted',
+        content: `
+          <p>El payload anonimizado ingresa a un flujo de automatización en un <strong>VPS Privado (n8n Self-Hosted)</strong> controlado por la firma:</p>
+          <ul>
+            <li>Envía el prompt únicamente a través de <strong>APIs Enterprise con Zero Data Retention (ZDR)</strong> o consulta a un <strong>Modelo Local Open Source</strong> corriendo dentro de la misma máquina sin conexión externa.</li>
+            <li>Ejecuta la clasificación jurídica o redacción de borrador sobre variables tokenizadas.</li>
+          </ul>
+        `
+      },
+      'flow-step-4': {
+        tag: 'PASO 04 DEL FLUJO SEGURIDAD',
+        title: '✅ Paso 4: Re-ensamblado & Validación Human-in-the-Loop',
+        content: `
+          <p>Una vez recibido el borrador procesado por la IA:</p>
+          <ul>
+            <li>El sistema local sustituye los tokens (<code style="font-family:monospace; color:#00f2fe;">[ACTOR_1]</code>) por los nombres reales guardados en el diccionario local.</li>
+            <li>Se le presenta al abogado/juez el borrador completo para su <strong>supervisión y auditoría humana obligatoria</strong> antes de firmar o enviar.</li>
+          </ul>
+        `
+      },
+      'api-zdr': {
+        tag: 'GARANTÍA CONTRACTUAL SLA',
+        title: '🔒 APIs Enterprise y Cláusulas Zero Data Retention (ZDR)',
+        content: `
+          <p><strong>Diferencia fundamental con la Web Comercial pública:</strong></p>
+          <p>Las conexiones formalizadas mediante API Enterprise cuentan con cláusulas de Nivel de Servicio (SLA) jurídicamente vinculantes:</p>
+          <ul>
+            <li><strong>Zero Data Retention (ZDR):</strong> Los datos enviados son procesados exclusivamente en la memoria RAM del servidor de inferencia para generar la respuesta y son eliminados inmediatamente.</li>
+            <li><strong>Prohibición contractual de uso para entrenamiento:</strong> Garantía de que los datos de tus clientes nunca alimentarán el modelo general de la Big Tech.</li>
+            <li><strong>Cifrado en tránsito y en reposo (TLS 1.3 / AES-256).</strong></li>
+          </ul>
+        `
+      },
+      'vps-selfhosted': {
+        tag: 'INFRAESTRUCTURA PROPIA',
+        title: '🖥️ Servidores VPS Self-Hosted: Accesibilidad y Costos',
+        content: `
+          <p><strong>Democratización de la Infraestructura Legal-Tech:</strong></p>
+          <p>Existe el mito de que montar una infraestructura segura es exclusivo de grandes corporaciones. La realidad práctica demostrada:</p>
+          <ul>
+            <li><strong>Costo Operativo Real:</strong> Un Servidor Privado Virtual (VPS) de alta resistencia ejecutando motor de automatización de código abierto (n8n) cuesta entre <strong>$10 y $20 dólares mensuales</strong>.</li>
+            <li><strong>Independencia Tecnológica:</strong> Evita el bloqueo o dependencia de proveedores SaaS cerrados (vendor lock-in) que encarecen tarifas de forma imprevista.</li>
+            <li><strong>Soberanía Total:</strong> Las credenciales, flujos, logs y llaves de acceso quedan en poder exclusivo de la abogada o la institución.</li>
+          </ul>
+        `
+      },
+      'caso-cedulas': {
+        tag: 'CASO DE USO 01 - AUDITABLE',
+        title: '📩 Triangulación Automatizada de Cédulas y Plazos',
+        content: `
+          <div class="anim-pop-center modal-quote" style="margin-bottom: 0.7rem; padding: 0.65rem 0.9rem; font-size: 0.84rem; line-height: 1.4; border-left: 4px solid #f87171; background: rgba(239, 68, 68, 0.06);">
+            <strong>El problema tradicional:</strong> Horas invertidas manualmente en abrir notificaciones, descargar anexos, interpretar el tipo de providencia y calcular vencimientos en la agenda.
+          </div>
+
+          <p style="font-size: 0.86rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+            La solución agéntica segura:
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 9px; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: #cbd5e1; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+              🤖 <strong>Lectura Automatizada:</strong> El bot lee la casilla de notificaciones o scraping de la cédula digital.
+            </div>
+
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 9px; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: #cbd5e1; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+              🛡️ <strong>Sanitización Local:</strong> Extrae el texto PDF y aplica anonimización / sanitización de PII.
+            </div>
+
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 9px; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: #cbd5e1; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+              ⚖️ <strong>Clasificación Jurídica:</strong> El agente analiza el tipo de cédula (traslado de demanda, intimación, providencia).
+            </div>
+
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 9px; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: #cbd5e1; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+              📅 <strong>Cálculo de Plazos:</strong> Calcula automáticamente días hábiles judiciales según el código procesal.
+            </div>
+
+            <div class="anim-slide-right" style="background: rgba(127, 0, 255, 0.08); border: 1px solid rgba(127, 0, 255, 0.35); border-radius: 9px; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: #cbd5e1; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+              🔔 <strong>Impacto & Borrador:</strong> Agenda vencimientos con alertas y genera un borrador inicial de escrito de trámite.
+            </div>
+          </div>
+        `
+      },
+      'caso-contratos': {
+        tag: 'CASO DE USO 02 - AUDITABLE',
+        title: '📑 Auditoría Automática de Formato y Cláusulas de Riesgo',
+        content: `
+          <p style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.8rem;">
+            <strong>Evaluación de cumplimiento contractual acelerada:</strong>
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 0.7rem;">
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.45; margin: 0;">
+                ⚡ <strong>El agente compara el proyecto de contrato</strong> contra una matriz o <em>checklist</em> de compliance normativo interno (ej. cláusulas de rescisión, jurisdicción aplicable, ley de defensa del consumidor).
+              </p>
+            </div>
+
+            <div class="anim-slide-left" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.45; margin: 0;">
+                🚨 <strong>Resalta en color rojo</strong> cláusulas abusivas, incompatibilidades de fechas o vacíos normativos antes de que el abogado realice la revisión final.
+              </p>
+            </div>
+
+            <div class="anim-slide-right" style="background: rgba(127, 0, 255, 0.08); border: 1px solid rgba(127, 0, 255, 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.45; margin: 0;">
+                📉 <strong>Reduce en un 80%</strong> el tiempo de primera lectura sin comprometer el control legal.
+              </p>
+            </div>
+          </div>
+        `
+      },
+      'caso-rag': {
+        tag: 'CASO DE USO 03 - ALUCINACIÓN CERO',
+        title: '🤖 Asistentes de Investigación RAG sobre Bases Doctrinarias Propias',
+        content: `
+          <p><strong>Retrieval-Augmented Generation (Generación Aumentada por Recuperación):</strong></p>
+          <div class="modal-quote">
+            "La solución definitiva a las alucinaciones de la IA es no dejarla inventar, sino obligarla a buscar únicamente dentro de tu propia biblioteca jurídica digital."
+          </div>
+          <p>El sistema indexa los dictámenes probados, jurisprudencia seleccionada y libros doctrinarios del propio despacho. El agente responde citando expresamente la página y el archivo exacto de la base interna, sin inventar normas ni precedentes ficticios.</p>
+        `
+      },
+      'director-orquesta': {
+        tag: 'CAMBIO DE ROL EN LA ABOGACÍA',
+        title: '🎯 El Abogado pasa a ser Director de Orquesta',
+        content: `
+          <p style="font-size: 0.92rem; line-height: 1.45; margin-bottom: 0.8rem;">
+            La IA no elimina el juicio profesional ni el valor de la abogacía. <strong>Reorganiza radicalmente el tiempo de trabajo:</strong>
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem;">
+            <div class="anim-slide-right" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 0.6rem;">
+              <div style="border-radius: 8px; overflow: hidden; border: 1px solid rgba(239, 68, 68, 0.3);">
+                <video src="sin_flujo_demo.mp4" autoplay loop muted playsinline style="width: 100%; max-height: 110px; object-fit: cover; display: block; border-radius: 8px;"></video>
+              </div>
+              <h4 style="color: #f87171; font-size: 0.92rem; font-weight: 700; margin: 0;">⏳ Antes (Sin Flujo Agéntico)</h4>
+              <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.4; margin: 0;">
+                <strong>70%</strong> dedicado a tareas mecánicas de baja complejidad (búsqueda de modelos, transcripción) y <strong>30%</strong> a estrategia real.
+              </p>
+            </div>
+
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.4); border-radius: 12px; padding: 0.75rem; box-shadow: 0 4px 20px rgba(0, 242, 254, 0.15); display: flex; flex-direction: column; gap: 0.6rem;">
+              <div style="border-radius: 8px; overflow: hidden; border: 1px solid rgba(0, 242, 254, 0.35); box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);">
+                <video src="con_flujo_demo.mp4" autoplay loop muted playsinline style="width: 100%; max-height: 110px; object-fit: cover; display: block; border-radius: 8px;"></video>
+              </div>
+              <h4 style="color: #38bdf8; font-size: 0.92rem; font-weight: 700; margin: 0;">⚡ Ahora (Con Flujo Agéntico)</h4>
+              <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.4; margin: 0;">
+                <strong>10%</strong> de pre-procesamiento automatizado y <strong>90%</strong> en auditoría de calidad, estrategia litigiosa y empatía.
+              </p>
+            </div>
+          </div>
+        `
+      },
+      'conclusion-clave': {
+        tag: 'SÍNTESIS DE PONENCIA',
+        title: '📌 Las 3 Ideas Rectoras de Cierre',
+        content: `
+          <div style="display: flex; flex-direction: column; gap: 0.7rem;">
+            <div class="anim-slide-right" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <h4 style="color: #38bdf8; font-size: 0.96rem; font-weight: 700; margin-bottom: 0.25rem;">⚡ La tecnología no es neutra</h4>
+              <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.4; margin: 0;">
+                Las herramientas que elegimos y la forma en que las configuramos determinan si estamos protegiendo o vulnerando los derechos de las personas.
+              </p>
+            </div>
+
+            <div class="anim-slide-left" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <h4 style="color: #38bdf8; font-size: 0.96rem; font-weight: 700; margin-bottom: 0.25rem;">🛡️ La soberanía de datos no es un lujo técnico</h4>
+              <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.4; margin: 0;">
+                Es el pilar del secreto profesional en el siglo XXI. No podemos exigir justicia digital si no garantizamos seguridad informática en nuestras propias herramientas.
+              </p>
+            </div>
+
+            <div class="anim-slide-up" style="background: rgba(127, 0, 255, 0.08); border: 1px solid rgba(127, 0, 255, 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <h4 style="color: #d8b4fe; font-size: 0.96rem; font-weight: 700; margin-bottom: 0.25rem;">⚖️ Gobernar la IA</h4>
+              <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.4; margin: 0;">
+                El futuro de la abogacía no pertenece a quienes le tienen miedo a la IA, ni a quienes la usan a ciegas. Pertenece a quienes tienen la capacidad técnica y rigurosidad jurídica para <strong>gobernarla</strong>.
+              </p>
+            </div>
+          </div>
+        `
+      },
+      'shield-faq': {
+        tag: 'CONTACTO & NETWORKING LEGAL-TECH',
+        title: '💬 ¡Muchas Gracias por su Atención!',
+        content: `
+          <div style="display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1.2rem; align-items: center;">
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="anim-slide-right" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(0, 242, 254, 0.25); border-radius: 12px; padding: 0.85rem 1rem;">
+                <h3 style="color: #fff; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Abog. María Elisa Farías</h3>
+                <p style="color: #38bdf8; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.6rem;">Abogada | Especialista en IA, Automatización e Infraestructura Legal-Tech</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.84rem; color: #cbd5e1;">
+                  <div>🌐 <strong>Web:</strong> <a href="https://mefarias.com.ar" target="_blank" style="color: #00f2fe; text-decoration: none;">mefarias.com.ar</a></div>
+                  <div>💼 <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/mariaelisafarias/" target="_blank" style="color: #00f2fe; text-decoration: none;">linkedin.com/in/mariaelisafarias</a></div>
+                  <div style="margin-top: 0.2rem; font-size: 0.78rem; color: #94a3b8; font-style: italic;">💬 Espacio para preguntas y debate.</div>
+                </div>
+              </div>
+
+              <div class="anim-slide-left" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 12px; padding: 0.6rem 0.8rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.8rem; box-shadow: 0 4px 20px rgba(0, 242, 254, 0.15);">
+                <div style="background: #fff; padding: 0.35rem; border-radius: 8px; flex-shrink: 0;">
+                  <img src="qr_linkedin.png" alt="QR LinkedIn" style="width: 70px; height: 70px; display: block; border-radius: 4px;">
+                </div>
+                <span style="font-size: 0.78rem; color: #38bdf8; font-weight: 600; text-align: left;">📲 Escaneá con tu celular para conectar en LinkedIn</span>
+              </div>
+            </div>
+
+            <div class="anim-pop-center" style="border-radius: 14px; overflow: hidden; border: 1px solid rgba(0, 242, 254, 0.45); box-shadow: 0 10px 30px rgba(0, 242, 254, 0.25); display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); padding: 4px; transform: scale(1.04);">
+              <img src="my_linkedin_banner.jpeg" alt="Flyer Abog. María Elisa Farías" style="max-height: 270px; width: 100%; object-fit: contain; display: block; border-radius: 10px;">
+            </div>
+
+          </div>
+        `
+      }
+    };
+
+    function openModal(key) {
+      const data = conceptDetails[key];
+      if (!data) return;
+
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalContent = document.getElementById('modal-content');
+      
+      modalOverlay.classList.remove('active');
+      modalContent.innerHTML = `
+        <div class="modal-tag">${data.tag}</div>
+        <h2 class="modal-title">${data.title}</h2>
+        <div class="modal-body">${data.content}</div>
+      `;
+
+      setTimeout(() => {
+        modalOverlay.classList.add('active');
+      }, 40);
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('active');
+    }
+
+    function closeModalOnBg(e) {
+      if (e.target.id === 'modal-overlay') {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
